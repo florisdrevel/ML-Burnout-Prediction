@@ -62,6 +62,9 @@ print("\nLoading company data...")
 
 company_df = pd.read_csv("company_data.csv")
 
+# Clean up any invisible characters in column names (can happen when saving from Excel)
+company_df.columns = company_df.columns.str.strip()
+
 print("Number of employees:", len(company_df))
 
 
@@ -105,18 +108,39 @@ print("\nRunning predictions...")
 predictions = model.predict(company_df)
 prediction_labels = label_encoder.inverse_transform(predictions)
 
+# Get the probability for each class
+# predict_proba returns a probability for each class (At Risk and Not At Risk)
+# We take the probability of whichever class was predicted as the confidence score
+probabilities = model.predict_proba(company_df)
+confidence_scores = probabilities.max(axis=1)
+
+# Round to a percentage
+confidence_pct = (confidence_scores * 100).round(1)
+
 
 # Save results
 results = pd.DataFrame({
     "employee_id": employee_ids,
-    "burnout_risk": prediction_labels
+    "burnout_risk": prediction_labels,
+    "confidence": confidence_pct
 })
 
-# Sort so At Risk employees show up first
-results = results.sort_values(by="burnout_risk", ascending=True)
+# Sort so At Risk employees show up first, then by confidence (highest first)
+# This way HR sees the most urgent cases at the top
+results = results.sort_values(
+    by=["burnout_risk", "confidence"],
+    ascending=[True, False]
+)
 
 results.to_csv("burnout_predictions.csv", index=False)
 
 print("\nResults saved to burnout_predictions.csv")
+
+# Save a separate file with only the At Risk employees
+at_risk = results[results["burnout_risk"] == "At Risk"]
+
+at_risk.to_csv("high_risk_employees.csv", index=False)
+
+print("High risk employees saved to high_risk_employees.csv")
 print("\nSummary:")
 print(results["burnout_risk"].value_counts())
