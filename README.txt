@@ -1,7 +1,7 @@
 Burnout Risk Predictor - README
 ================================
 Developed by Ailin Bergetun & Florean Drevel
-Machine Learning Exam Project 2025/2026
+Applied Machine Learning Exam Project 2025/2026
 
 
 WHAT THIS TOOL DOES
