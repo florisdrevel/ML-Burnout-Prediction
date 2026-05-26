@@ -1,13 +1,17 @@
 Burnout Risk Predictor - README
-Developed by Ailin Bergetun & Florean Drevel
-Applied Machine Learning Exam Project 2025/2026
 
+Developed by Ailin Bergetun & Florean Drevel
+
+Applied Machine Learning Exam Project 2025/2026
+---------------------------------------------------------------------------------------------
 WHAT THIS TOOL DOES
 This tool predicts which employees are at risk of burnout.
 It instantly loads our pre-trained model pipeline, processes your
 employee data file, and saves a unified output file showing who is at risk.
 
+---------------------------------------------------------------------------------------------
 WHAT YOU NEED
+
 Python installed with these libraries:
 
 pandas
@@ -31,7 +35,9 @@ model_features.pkl
 
 company_data.csv (your employee data - see below)
 
+---------------------------------------------------------------------------------------------
 HOW TO PREPARE YOUR EMPLOYEE DATA
+
 Use company_data.csv as your starting point.
 Fill in your employees and save the file with the exact same name.
 Make sure it is in the same folder as burnout_predictor.py.
@@ -65,6 +71,7 @@ deadline_pressure_score  - score 20-100
 autonomy_score           - score 15-100
 salary_relative          - dynamic base factor scale
 
+---------------------------------------------------------------------------------------------
 HOW TO RUN IT
 Open your terminal or PyCharm
 
@@ -74,6 +81,7 @@ Run: python burnout_predictor.py
 
 Wait for it to finish - it will print a confirmation message when done
 
+---------------------------------------------------------------------------------------------
 OUTPUT FILES
 One unified file will be saved in the same folder:
 
@@ -87,12 +95,14 @@ Each individual is clearly tagged as At Risk or Not At Risk
 
 Use this to prioritize who to follow up with for check-ins
 
+---------------------------------------------------------------------------------------------
 IMPORTANT NOTE
 This tool is a screening aid, not a diagnosis.
 Use the results to start conversations and check in with employees.
 Do not make decisions about anyone based solely on this output.
 Employees should be aware the tool is being used.
 
+---------------------------------------------------------------------------------------------
 TECHNICAL NOTE
 If your CSV file uses semicolons instead of commas as separators
 (this can happen when saving from Excel on some systems), open
