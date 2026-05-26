@@ -14,22 +14,18 @@ from sklearn.ensemble import RandomForestClassifier
 # Imported joblib to save the model and label encoder
 import joblib
 
-# Imported VotingClassifier to let models vote together
-from sklearn.ensemble import VotingClassifier
-
 
 print("Loading dataset...")
 
 #loading the dataset
 
-df = pd.read_csv("company_data.csv")
+df = pd.read_csv("cleaned_burnout_dataset_engineered.csv")
 
 print("Dataset shape:", df.shape)
 
 
-# Separate features and target while filtering structural identifiers
-columns_to_drop = ["burnout_level", "name", "employee_id"]
-X = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
+# Separate features and target
+X = df.drop(columns=["burnout_level"])
 y = df["burnout_level"]
 
 # Encode categorical features
@@ -88,7 +84,7 @@ models = {
 
     "KNN": Pipeline([
         ("scaler", StandardScaler()),
-        ("model", KNeighborsClassifier(n_neighbors=5, weights="distance"))
+        ("model", KNeighborsClassifier(n_neighbors=5))
     ]),
 
     "Random Forest": RandomForestClassifier(
@@ -97,19 +93,6 @@ models = {
         random_state=42
     ),
 }
-
-# Creating the voting ensemble
-voting_model = VotingClassifier(
-    estimators=[
-        ("lr", models["Logistic Regression"]),
-        ("knn", models["KNN"]),
-        ("rf", models["Random Forest"])
-    ],
-    voting="soft"
-)
-
-# Including the voting ensemble in evaluation
-models["Voting Classifier"] = voting_model
 
 
 results = []
@@ -177,17 +160,16 @@ print("\nCreating comparison chart...")
 original_f1 = 0.5781  # from our original model_training_feature_engineering.py
 
 # Creating the chart for an easy overview
-labels = ["Original\n4-class LR", "Binary\nLogistic Regression", "Binary\nRandom Forest", "Binary\nKNN", "Voting\nClassifier"]
+labels = ["Original\n4-class LR", "Binary\nLogistic Regression", "Binary\nRandom Forest", "Binary\nKNN"]
 f1_scores = [
     original_f1,
     results_df[results_df["Model"] == "Logistic Regression"]["F1-score"].values[0],
     results_df[results_df["Model"] == "Random Forest"]["F1-score"].values[0],
     results_df[results_df["Model"] == "KNN"]["F1-score"].values[0],
-    results_df[results_df["Model"] == "Voting Classifier"]["F1-score"].values[0],
 ]
-colors = ["#5b8dd9", "#2ecc71", "#2ecc71", "#2ecc71", "#9b59b6"]
+colors = ["#5b8dd9", "#2ecc71", "#2ecc71", "#2ecc71"]
 
-plt.figure(figsize=(10, 5))
+plt.figure(figsize=(9, 5))
 bars = plt.bar(labels, f1_scores, color=colors, width=0.5)
 plt.axhline(y=original_f1, color="red", linestyle="--", linewidth=1.2, label=f"Original baseline ({original_f1})")
 plt.ylim(0, 1.0)
@@ -206,20 +188,11 @@ plt.show()
 
 print("Saved: improvement_comparison.png")
 
-# Finding the highest scoring model configuration
-best_model_name = max(results, key=lambda item: item["F1-score"])["Model"]
-print(f"\nWinner selected for export: {best_model_name}")
-
-# Extracting and saving the winning model pipeline
-best_model_pipeline = models[best_model_name]
-joblib.dump(best_model_pipeline, "burnout_pipeline.pkl")
+# Save the trained components to files
+joblib.dump(models["Logistic Regression"], "burnout_pipeline.pkl")
 joblib.dump(label_encoder, "burnout_label_encoder.pkl")
-
-# Exporting the list of training feature names
-joblib.dump(X_train.columns.tolist(), "model_features.pkl")
 
 print("saved: burnout_label_encoder.pkl")
 print("Saved: burnout_pipeline.pkl")
-print("Saved: model_features.pkl")
 
 print("\nDone!")
