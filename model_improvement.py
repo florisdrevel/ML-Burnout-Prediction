@@ -11,16 +11,25 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 
+# Imported joblib to save the model and label encoder
+import joblib
+
+# Imported VotingClassifier to let models vote together
+from sklearn.ensemble import VotingClassifier
+
 
 print("Loading dataset...")
 
-df = pd.read_csv("cleaned_burnout_dataset_engineered.csv")
+#loading the dataset
+
+df = pd.read_csv("company_data.csv")
 
 print("Dataset shape:", df.shape)
 
 
-# Separate features and target
-X = df.drop(columns=["burnout_level"])
+# Separate features and target while filtering structural identifiers
+columns_to_drop = ["burnout_level", "name", "employee_id"]
+X = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
 y = df["burnout_level"]
 
 # Encode categorical features
@@ -36,7 +45,9 @@ X = pd.get_dummies(X, drop_first=True)
 
 print("Changing target to binary: At Risk / Not At Risk")
 
+#Assigning the classes to binary labels
 y_binary = y.map(lambda x: "At Risk" if x in ["High", "Severe"] else "Not At Risk")
+
 
 print("Binary class distribution:")
 print(y_binary.value_counts())
@@ -58,6 +69,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     stratify=y_encoded
 )
 
+#Confirming the encoding worked and the features are there.
 print("Training shape:", X_train.shape)
 print("Test shape:", X_test.shape)
 
@@ -69,12 +81,14 @@ print("Test shape:", X_test.shape)
 models = {
     "Logistic Regression": Pipeline([
         ("scaler", StandardScaler()),
-        ("model", LogisticRegression(max_iter=1000, class_weight="balanced"))
+        ("model", LogisticRegression(
+            max_iter=1000,
+            class_weight="balanced"))
     ]),
 
     "KNN": Pipeline([
         ("scaler", StandardScaler()),
-        ("model", KNeighborsClassifier(n_neighbors=5))
+        ("model", KNeighborsClassifier(n_neighbors=5, weights="distance"))
     ]),
 
     "Random Forest": RandomForestClassifier(
@@ -83,6 +97,19 @@ models = {
         random_state=42
     ),
 }
+
+# Creating the voting ensemble
+voting_model = VotingClassifier(
+    estimators=[
+        ("lr", models["Logistic Regression"]),
+        ("knn", models["KNN"]),
+        ("rf", models["Random Forest"])
+    ],
+    voting="soft"
+)
+
+# Including the voting ensemble in evaluation
+models["Voting Classifier"] = voting_model
 
 
 results = []
@@ -149,22 +176,25 @@ print("\nCreating comparison chart...")
 
 original_f1 = 0.5781  # from our original model_training_feature_engineering.py
 
-labels = ["Original\n4-class LR", "Binary\nLogistic Regression", "Binary\nRandom Forest", "Binary\nKNN"]
+# Creating the chart for an easy overview
+labels = ["Original\n4-class LR", "Binary\nLogistic Regression", "Binary\nRandom Forest", "Binary\nKNN", "Voting\nClassifier"]
 f1_scores = [
     original_f1,
     results_df[results_df["Model"] == "Logistic Regression"]["F1-score"].values[0],
     results_df[results_df["Model"] == "Random Forest"]["F1-score"].values[0],
     results_df[results_df["Model"] == "KNN"]["F1-score"].values[0],
+    results_df[results_df["Model"] == "Voting Classifier"]["F1-score"].values[0],
 ]
-colors = ["#5b8dd9", "#2ecc71", "#2ecc71", "#2ecc71"]
+colors = ["#5b8dd9", "#2ecc71", "#2ecc71", "#2ecc71", "#9b59b6"]
 
-plt.figure(figsize=(9, 5))
+plt.figure(figsize=(10, 5))
 bars = plt.bar(labels, f1_scores, color=colors, width=0.5)
 plt.axhline(y=original_f1, color="red", linestyle="--", linewidth=1.2, label=f"Original baseline ({original_f1})")
 plt.ylim(0, 1.0)
 plt.ylabel("F1-score")
 plt.title("Before vs After: 4-Class vs Binary Classification")
 
+# Assigning the values to the chart
 for bar, val in zip(bars, f1_scores):
     plt.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.015,
              f"{val:.4f}", ha="center", fontsize=10)
@@ -175,4 +205,21 @@ plt.savefig("improvement_comparison.png", dpi=300)
 plt.show()
 
 print("Saved: improvement_comparison.png")
+
+# Finding the highest scoring model configuration
+best_model_name = max(results, key=lambda item: item["F1-score"])["Model"]
+print(f"\nWinner selected for export: {best_model_name}")
+
+# Extracting and saving the winning model pipeline
+best_model_pipeline = models[best_model_name]
+joblib.dump(best_model_pipeline, "burnout_pipeline.pkl")
+joblib.dump(label_encoder, "burnout_label_encoder.pkl")
+
+# Exporting the list of training feature names
+joblib.dump(X_train.columns.tolist(), "model_features.pkl")
+
+print("saved: burnout_label_encoder.pkl")
+print("Saved: burnout_pipeline.pkl")
+print("Saved: model_features.pkl")
+
 print("\nDone!")
