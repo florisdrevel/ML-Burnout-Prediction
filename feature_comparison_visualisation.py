@@ -4,8 +4,7 @@ import pandas as pd
 data = pd.DataFrame({
     "Model": ["Logistic Regression", "SVM", "XGBoost", "Random Forest", "KNN"],
     "Before": [0.5774, 0.5689, 0.5665, 0.5203, 0.3816],
-    "After": [0.5781, 0.5700, 0.5662, 0.5396, 0.4038]
-})
+    "After": [0.5781, 0.5700, 0.5662, 0.5396, 0.4038]})
 
 x = range(len(data))
 
