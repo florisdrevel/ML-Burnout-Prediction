@@ -48,7 +48,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     y,
     test_size=0.2,
     random_state=42,
-    stratify=y
+    stratify=y #makes sure each burnout level is represented equally in train and test
 )
 
 print("Training shape:", X_train.shape)
@@ -75,7 +75,7 @@ models = {
     "Random Forest": RandomForestClassifier(random_state=42),
 
     "XGBoost": XGBClassifier(
-        eval_metric="mlogloss",
+        eval_metric="mlogloss",#required for multi-class, got a warning without it
         random_state=42
     )
 }
