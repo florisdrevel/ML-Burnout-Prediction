@@ -9,7 +9,6 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 
-
 print("Loading dataset...")
 
 df = pd.read_csv("cleaned_burnout_dataset_engineered.csv")
@@ -137,11 +136,9 @@ print(f"Random Forest (tuned) F1-score: {rf_f1:.4f}")
 
 # Summary
 print("\nFinal comparison (tuned models):")
-print(f"{'Model':<25} {'Accuracy':>10} {'F1-score':>10}")
-print("-" * 50)
-print(f"{'Logistic Regression':<25} {lr_accuracy:>10.4f} {lr_f1:>10.4f}")
-print(f"{'Random Forest':<25} {rf_accuracy:>10.4f} {rf_f1:>10.4f}")
-print(f"{'KNN':<25} {knn_accuracy:>10.4f} {knn_f1:>10.4f}")
+print("Logistic Regression - Accuracy:", lr_accuracy, "F1:", lr_f1)
+print("Random Forest - Accuracy:", rf_accuracy, "F1:", rf_f1)
+print("KNN - Accuracy:", knn_accuracy, "F1:", knn_f1)
 
 results = pd.DataFrame({
     "Model": ["Logistic Regression", "Random Forest", "KNN"],
