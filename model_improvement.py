@@ -32,7 +32,7 @@ y = df["burnout_level"]
 X = pd.get_dummies(X, drop_first=True)
 
 
-# We tried predicting 4 burnout levels but only got around 58% accuracy
+# We tried predicting 4 burnout levels, but only got around 58% accuracy
 # One reason is that High and Moderate overlap a lot in the data
 # So we decided to simplify to two categories instead:
 # At Risk = High or Severe
@@ -62,8 +62,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     y_encoded,
     test_size=0.2,
     random_state=42,
-    stratify=y_encoded
-)
+    stratify=y_encoded)
 
 #Confirming the encoding worked and the features are there.
 print("Training shape:", X_train.shape)
@@ -79,19 +78,16 @@ models = {
         ("scaler", StandardScaler()),
         ("model", LogisticRegression(
             max_iter=1000,
-            class_weight="balanced"))
-    ]),
+            class_weight="balanced"))]),
 
     "KNN": Pipeline([
         ("scaler", StandardScaler()),
-        ("model", KNeighborsClassifier(n_neighbors=5))
-    ]),
+        ("model", KNeighborsClassifier(n_neighbors=5))]),
 
     "Random Forest": RandomForestClassifier(
         n_estimators=100,
         class_weight="balanced",
-        random_state=42
-    ),
+        random_state=42),
 }
 
 
@@ -109,8 +105,7 @@ for model_name, model in models.items():
     results.append({
         "Model": model_name,
         "Accuracy": accuracy,
-        "F1-score": f1
-    })
+        "F1-score": f1})
 
     print(f"{model_name} Accuracy:", accuracy)
     print(f"{model_name} F1-score:", f1)
@@ -118,8 +113,7 @@ for model_name, model in models.items():
     print(classification_report(
         y_test,
         predictions,
-        target_names=label_encoder.classes_
-    ))
+        target_names=label_encoder.classes_))
 
 
 results_df = pd.DataFrame(results)
@@ -142,8 +136,7 @@ cm = confusion_matrix(y_test, lr_predictions)
 
 disp = ConfusionMatrixDisplay(
     confusion_matrix=cm,
-    display_labels=label_encoder.classes_
-)
+    display_labels=label_encoder.classes_)
 
 disp.plot(cmap="Greens")
 plt.title("Confusion Matrix - Binary Logistic Regression")
@@ -165,8 +158,7 @@ f1_scores = [
     original_f1,
     results_df[results_df["Model"] == "Logistic Regression"]["F1-score"].values[0],
     results_df[results_df["Model"] == "Random Forest"]["F1-score"].values[0],
-    results_df[results_df["Model"] == "KNN"]["F1-score"].values[0],
-]
+    results_df[results_df["Model"] == "KNN"]["F1-score"].values[0],]
 colors = ["#5b8dd9", "#2ecc71", "#2ecc71", "#2ecc71"]
 
 plt.figure(figsize=(9, 5))
