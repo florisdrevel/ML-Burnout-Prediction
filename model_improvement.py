@@ -11,8 +11,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 
-# Imported joblib to save the model and label encoder
-import joblib
+import joblib #used to save the trained model so burnout_predictor.py can load it later
 
 
 print("Loading dataset...")
@@ -180,7 +179,8 @@ plt.show()
 
 print("Saved: improvement_comparison.png")
 
-# Save the trained components to files
+# Save the trained model and label encoder so we can load them in burnout_predictor.py
+# This means the predictor doesn't have to retrain every time it runs
 joblib.dump(models["Logistic Regression"], "burnout_pipeline.pkl")
 joblib.dump(label_encoder, "burnout_label_encoder.pkl")
 
