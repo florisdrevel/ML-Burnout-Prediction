@@ -135,7 +135,6 @@ print(f"Random Forest (tuned) F1-score: {rf_f1:.4f}")
 
 
 # Summary
-print("\nFinal comparison (tuned models):")
 print("Logistic Regression - Accuracy:", lr_accuracy, "F1:", lr_f1)
 print("Random Forest - Accuracy:", rf_accuracy, "F1:", rf_f1)
 print("KNN - Accuracy:", knn_accuracy, "F1:", knn_f1)
