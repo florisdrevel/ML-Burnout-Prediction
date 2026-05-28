@@ -48,7 +48,7 @@ sns.heatmap(
     linewidths=0.5,
     vmin=-1,
     vmax=1,
-    annot_kws={"size": 6})
+    annot_kws={"size": 6}) #numbers were overlapping so had to make them smaller
 
 plt.title("Correlation Heatmap of Numeric Features")
 plt.tight_layout()
