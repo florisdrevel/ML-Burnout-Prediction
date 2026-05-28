@@ -48,8 +48,7 @@ sns.heatmap(
     linewidths=0.5,
     vmin=-1,
     vmax=1,
-    annot_kws={"size": 6}
-)
+    annot_kws={"size": 6})
 
 plt.title("Correlation Heatmap of Numeric Features")
 plt.tight_layout()
@@ -90,8 +89,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     y,
     test_size=0.2,
     random_state=42,
-    stratify=y
-)
+    stratify=y)
 
 
 # FIGURE 4: CONFUSION MATRIX - LOGISTIC REGRESSION
@@ -108,8 +106,7 @@ cm = confusion_matrix(y_test, logistic_predictions)
 
 disp = ConfusionMatrixDisplay(
     confusion_matrix=cm,
-    display_labels=label_encoder.classes_
-)
+    display_labels=label_encoder.classes_)
 
 disp.plot(cmap="Blues")
 plt.title("Confusion Matrix - Logistic Regression")
