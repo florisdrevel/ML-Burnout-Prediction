@@ -2,7 +2,7 @@ import pandas as pd
 
 print("Loading original dataset...")
 
-df = pd.read_csv("/Users/ailinbergetun/documents/Exam_Project/mental_health_burnout_tech_2026.csv")
+df = pd.read_csv("mental_health_burnout_tech_2026.csv")
 
 print("Original dataset shape:", df.shape)
 print(df.head())
@@ -40,7 +40,7 @@ columns_to_remove = [
 df = df.drop(columns=columns_to_remove)
 
 
-# FEATURE ENGINEERING
+# Feature Engineering/upgrade
 
 print("Creating new engineered features...")
 
@@ -57,8 +57,7 @@ df["work_life_risk"] = df["work_hours_per_week"] / df["work_life_balance_score"]
 df["support_average"] = (
     df["manager_support_score"] +
     df["social_support_score"] +
-    df["autonomy_score"]
-) / 3
+    df["autonomy_score"]) / 3
 
 # Pressure compared to support
 df["pressure_support_ratio"] = df["deadline_pressure_score"] / df["support_average"]
@@ -69,8 +68,7 @@ print([
     "meeting_workload_ratio",
     "work_life_risk",
     "support_average",
-    "pressure_support_ratio"
-])
+    "pressure_support_ratio"])
 
 print("Cleaned dataset shape:", df.shape)
 print("Remaining columns:")
