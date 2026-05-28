@@ -39,8 +39,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     y_encoded,
     test_size=0.2,
     random_state=42,
-    stratify=y_encoded
-)
+    stratify=y_encoded)
 
 print("Training shape:", X_train.shape)
 print("Test shape:", X_test.shape)
@@ -57,12 +56,10 @@ print("\nTuning Logistic Regression...")
 
 lr_pipeline = Pipeline([
     ("scaler", StandardScaler()),
-    ("model", LogisticRegression(max_iter=2000, class_weight="balanced"))
-])
+    ("model", LogisticRegression(max_iter=2000, class_weight="balanced"))])
 
 lr_params = {
-    "model__C": [0.01, 0.1, 1, 10, 100]
-}
+    "model__C": [0.01, 0.1, 1, 10, 100]}
 
 lr_grid = GridSearchCV(lr_pipeline, lr_params, cv=3, scoring="f1_weighted", n_jobs=-1)
 lr_grid.fit(X_train, y_train)
@@ -82,12 +79,10 @@ print("\nTuning KNN...")
 
 knn_pipeline = Pipeline([
     ("scaler", StandardScaler()),
-    ("model", KNeighborsClassifier())
-])
+    ("model", KNeighborsClassifier())])
 
 knn_params = {
-    "model__n_neighbors": [3, 5, 9, 15, 21]
-}
+    "model__n_neighbors": [3, 5, 9, 15, 21]}
 
 knn_grid = GridSearchCV(knn_pipeline, knn_params, cv=3, scoring="f1_weighted", n_jobs=-1)
 knn_grid.fit(X_train, y_train)
@@ -102,8 +97,8 @@ print(f"KNN (tuned) Accuracy: {knn_accuracy:.4f}")
 print(f"KNN (tuned) F1-score: {knn_f1:.4f}")
 
 
-# Random Forest: try different number of trees and tree depth
-# We tune on a sample first because 100,000 rows takes too long with cross-validation
+# Random Forest: try different numbers of trees and tree depth
+# We tune on a sample first because 100,000 rows take too long with cross-validation
 print("\nTuning Random Forest (using a sample to keep it fast)...")
 
 from sklearn.utils import resample
@@ -113,16 +108,14 @@ X_sample, y_sample = resample(X_train, y_train, n_samples=16000, random_state=42
 rf_params = {
     "n_estimators": [100, 200],
     "max_depth": [20, None],
-    "class_weight": ["balanced"]
-}
+    "class_weight": ["balanced"]}
 
 rf_grid = GridSearchCV(
     RandomForestClassifier(random_state=42),
     rf_params,
     cv=3,
     scoring="f1_weighted",
-    n_jobs=-1
-)
+    n_jobs=-1)
 rf_grid.fit(X_sample, y_sample)
 
 print("Best Random Forest settings:", rf_grid.best_params_)
@@ -132,8 +125,7 @@ best_rf = RandomForestClassifier(
     random_state=42,
     class_weight="balanced",
     n_estimators=rf_grid.best_params_["n_estimators"],
-    max_depth=rf_grid.best_params_["max_depth"]
-)
+    max_depth=rf_grid.best_params_["max_depth"])
 best_rf.fit(X_train, y_train)
 rf_predictions = best_rf.predict(X_test)
 rf_accuracy = accuracy_score(y_test, rf_predictions)
@@ -156,11 +148,9 @@ results = pd.DataFrame({
     "Best Params": [
         f"C={lr_grid.best_params_['model__C']}",
         f"n_estimators={rf_grid.best_params_['n_estimators']}, max_depth={rf_grid.best_params_['max_depth']}",
-        f"n_neighbors={knn_grid.best_params_['model__n_neighbors']}"
-    ],
+        f"n_neighbors={knn_grid.best_params_['model__n_neighbors']}"],
     "Accuracy": [lr_accuracy, rf_accuracy, knn_accuracy],
-    "F1-score": [lr_f1, rf_f1, knn_f1]
-})
+    "F1-score": [lr_f1, rf_f1, knn_f1]})
 
 results.to_csv("model_results_tuned.csv", index=False)
 print("\nSaved to model_results_tuned.csv")
