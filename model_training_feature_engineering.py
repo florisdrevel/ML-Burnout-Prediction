@@ -48,8 +48,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     y,
     test_size=0.2,
     random_state=42,
-    stratify=y
-)
+    stratify=y)
 
 print("Training shape:", X_train.shape)
 print("Test shape:", X_test.shape)
@@ -76,8 +75,7 @@ models = {
 
     "XGBoost": XGBClassifier(
         eval_metric="mlogloss",
-        random_state=42
-    )
+        random_state=42)
 }
 
 
@@ -95,8 +93,7 @@ for model_name, model in models.items():
     results.append({
         "Model": model_name,
         "Accuracy": accuracy,
-        "F1-score": f1
-    })
+        "F1-score": f1})
 
     print(f"{model_name} Accuracy:", accuracy)
     print(f"{model_name} F1-score:", f1)
@@ -104,8 +101,7 @@ for model_name, model in models.items():
     print(classification_report(
         y_test,
         predictions,
-        target_names=label_encoder.classes_
-    ))
+        target_names=label_encoder.classes_))
 
 
 results_df = pd.DataFrame(results)
