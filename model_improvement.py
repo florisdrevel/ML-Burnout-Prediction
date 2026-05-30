@@ -18,7 +18,7 @@ print("Loading dataset...")
 
 #loading the dataset
 
-df = pd.read_csv("cleaned_burnout_dataset_engineered.csv")
+df = pd.read_csv("company_data.csv")
 
 print("Dataset shape:", df.shape)
 
