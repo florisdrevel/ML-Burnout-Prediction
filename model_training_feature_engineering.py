@@ -15,7 +15,8 @@ from xgboost import XGBClassifier
 
 print("Loading cleaned dataset...")
 
-df = pd.read_csv("cleaned_burnout_dataset_engineered.csv")
+# load the cleaned and engineered data
+df = pd.read_csv("company_data.csv")
 
 print("Dataset shape:", df.shape)
 
@@ -48,13 +49,14 @@ X_train, X_test, y_train, y_test = train_test_split(
     y,
     test_size=0.2,
     random_state=42,
-    stratify=y) #makes sure each burnout level is represented equally in train and test
+    stratify=y #makes sure each burnout level is represented equally in train and test
+)
 
 print("Training shape:", X_train.shape)
 print("Test shape:", X_test.shape)
 
 
-# Models
+# The models and their pipelines
 models = {
     "Logistic Regression": Pipeline([
         ("scaler", StandardScaler()),
@@ -74,13 +76,14 @@ models = {
     "Random Forest": RandomForestClassifier(random_state=42),
 
     "XGBoost": XGBClassifier(
-        eval_metric="mlogloss", #required for multi-class, got a warning without it
-        random_state=42)
+        eval_metric="mlogloss",#required for multi-class, got a warning without it
+        random_state=42
+    )
 }
 
 
 results = []
-
+#The model loop
 for model_name, model in models.items():
     print(f"\nTraining {model_name}...")
 
@@ -93,7 +96,8 @@ for model_name, model in models.items():
     results.append({
         "Model": model_name,
         "Accuracy": accuracy,
-        "F1-score": f1})
+        "F1-score": f1
+    })
 
     print(f"{model_name} Accuracy:", accuracy)
     print(f"{model_name} F1-score:", f1)
@@ -101,7 +105,8 @@ for model_name, model in models.items():
     print(classification_report(
         y_test,
         predictions,
-        target_names=label_encoder.classes_))
+        target_names=label_encoder.classes_
+    ))
 
 
 results_df = pd.DataFrame(results)
@@ -110,6 +115,7 @@ results_df = results_df.sort_values(by="F1-score", ascending=False)
 print("\nFinal model comparison:")
 print(results_df)
 
+# save the results to a new csv
 results_df.to_csv("model_results.csv", index=False)
 
 print("Model results saved as model_results.csv")
