@@ -10,15 +10,15 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 
-# LOAD FEATURE ENGINEERED DATASET
+# Load data
 
-df = pd.read_csv("cleaned_burnout_dataset_engineered.csv")
+df = pd.read_csv("company_data.csv")
 
 print("Loaded engineered dataset:")
 print(df.shape)
 
 
-# FIGURE 1: BURNOUT LEVEL DISTRIBUTION
+# Figure 1, burnout level distribution
 
 plt.figure(figsize=(8, 5))
 df["burnout_level"].value_counts().plot(kind="bar")
@@ -33,7 +33,7 @@ plt.savefig("burnout_distribution.png", dpi=300)
 plt.show()
 
 
-# FIGURE 2: CORRELATION HEATMAP WITH NUMBERS
+# Figure 2, correlation heatmap
 
 numeric_df = df.select_dtypes(include=["number"])
 corr_matrix = numeric_df.corr()
@@ -48,7 +48,8 @@ sns.heatmap(
     linewidths=0.5,
     vmin=-1,
     vmax=1,
-    annot_kws={"size": 6}) #numbers were overlapping so had to make them smaller
+    annot_kws={"size": 6}
+)
 
 plt.title("Correlation Heatmap of Numeric Features")
 plt.tight_layout()
@@ -57,7 +58,7 @@ plt.savefig("correlation_heatmap.png", dpi=300)
 plt.show()
 
 
-# FIGURE 3: MODEL COMPARISON BY F1-SCORE
+# Figure 3, model comparison
 
 results = pd.read_csv("model_results.csv")
 
@@ -74,7 +75,7 @@ plt.savefig("model_comparison_f1.png", dpi=300)
 plt.show()
 
 
-# PREPARE DATA FOR CONFUSION MATRIX AND FEATURE IMPORTANCE
+# Prepping data for confusion matrix and feature importance
 
 X = df.drop(columns=["burnout_level"])
 y = df["burnout_level"]
@@ -89,10 +90,11 @@ X_train, X_test, y_train, y_test = train_test_split(
     y,
     test_size=0.2,
     random_state=42,
-    stratify=y)
+    stratify=y
+)
 
 
-# FIGURE 4: CONFUSION MATRIX - LOGISTIC REGRESSION
+# Figure 4, confusion matrix of the logistic regression model
 
 logistic_model = Pipeline([
     ("scaler", StandardScaler()),
@@ -106,7 +108,8 @@ cm = confusion_matrix(y_test, logistic_predictions)
 
 disp = ConfusionMatrixDisplay(
     confusion_matrix=cm,
-    display_labels=label_encoder.classes_)
+    display_labels=label_encoder.classes_
+)
 
 disp.plot(cmap="Blues")
 plt.title("Confusion Matrix - Logistic Regression")
@@ -116,7 +119,7 @@ plt.savefig("confusion_matrix_logistic_regression.png", dpi=300)
 plt.show()
 
 
-# FIGURE 5: FEATURE IMPORTANCE - RANDOM FOREST
+# Figure 5, feature importance of the random forest model
 
 rf_model = RandomForestClassifier(random_state=42)
 rf_model.fit(X_train, y_train)
