@@ -15,7 +15,8 @@ from xgboost import XGBClassifier
 
 print("Loading cleaned dataset...")
 
-df = pd.read_csv("cleaned_burnout_dataset.csv")
+# load the cleaned and engineered data
+df = pd.read_csv("company_data.csv")
 
 print("Dataset shape:", df.shape)
 
@@ -55,7 +56,7 @@ print("Training shape:", X_train.shape)
 print("Test shape:", X_test.shape)
 
 
-# Models
+# The models and their pipelines
 models = {
     "Logistic Regression": Pipeline([
         ("scaler", StandardScaler()),
@@ -82,7 +83,7 @@ models = {
 
 
 results = []
-
+#The model loop
 for model_name, model in models.items():
     print(f"\nTraining {model_name}...")
 
@@ -114,6 +115,7 @@ results_df = results_df.sort_values(by="F1-score", ascending=False)
 print("\nFinal model comparison:")
 print(results_df)
 
+# save the results to a new csv
 results_df.to_csv("model_results.csv", index=False)
 
 print("Model results saved as model_results.csv")
