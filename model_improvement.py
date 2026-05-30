@@ -11,7 +11,11 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 
-import joblib #used to save the trained model so burnout_predictor.py can load it later
+# Imported joblib to save the model and label encoder
+import joblib
+
+# Imported VotingClassifier to let models vote together
+from sklearn.ensemble import VotingClassifier
 
 
 print("Loading dataset...")
@@ -23,15 +27,16 @@ df = pd.read_csv("company_data.csv")
 print("Dataset shape:", df.shape)
 
 
-# Separate features and target
-X = df.drop(columns=["burnout_level"])
+# Separate features and target while filtering structural identifiers
+columns_to_drop = ["burnout_level", "name", "employee_id"]
+X = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
 y = df["burnout_level"]
 
 # Encode categorical features
 X = pd.get_dummies(X, drop_first=True)
 
 
-# We tried predicting 4 burnout levels, but only got around 58% accuracy
+# We tried predicting 4 burnout levels but only got around 58% accuracy
 # One reason is that High and Moderate overlap a lot in the data
 # So we decided to simplify to two categories instead:
 # At Risk = High or Severe
@@ -61,7 +66,8 @@ X_train, X_test, y_train, y_test = train_test_split(
     y_encoded,
     test_size=0.2,
     random_state=42,
-    stratify=y_encoded)
+    stratify=y_encoded
+)
 
 #Confirming the encoding worked and the features are there.
 print("Training shape:", X_train.shape)
@@ -77,17 +83,33 @@ models = {
         ("scaler", StandardScaler()),
         ("model", LogisticRegression(
             max_iter=1000,
-            class_weight="balanced"))]),
+            class_weight="balanced"))
+    ]),
 
     "KNN": Pipeline([
         ("scaler", StandardScaler()),
-        ("model", KNeighborsClassifier(n_neighbors=5))]),
+        ("model", KNeighborsClassifier(n_neighbors=5, weights="distance"))
+    ]),
 
     "Random Forest": RandomForestClassifier(
         n_estimators=100,
         class_weight="balanced",
-        random_state=42),
+        random_state=42
+    ),
 }
+
+# Creating the voting ensemble
+voting_model = VotingClassifier(
+    estimators=[
+        ("lr", models["Logistic Regression"]),
+        ("knn", models["KNN"]),
+        ("rf", models["Random Forest"])
+    ],
+    voting="soft"
+)
+
+# Including the voting ensemble in evaluation
+models["Voting Classifier"] = voting_model
 
 
 results = []
@@ -104,7 +126,8 @@ for model_name, model in models.items():
     results.append({
         "Model": model_name,
         "Accuracy": accuracy,
-        "F1-score": f1})
+        "F1-score": f1
+    })
 
     print(f"{model_name} Accuracy:", accuracy)
     print(f"{model_name} F1-score:", f1)
@@ -112,7 +135,8 @@ for model_name, model in models.items():
     print(classification_report(
         y_test,
         predictions,
-        target_names=label_encoder.classes_))
+        target_names=label_encoder.classes_
+    ))
 
 
 results_df = pd.DataFrame(results)
@@ -135,7 +159,8 @@ cm = confusion_matrix(y_test, lr_predictions)
 
 disp = ConfusionMatrixDisplay(
     confusion_matrix=cm,
-    display_labels=label_encoder.classes_)
+    display_labels=label_encoder.classes_
+)
 
 disp.plot(cmap="Greens")
 plt.title("Confusion Matrix - Binary Logistic Regression")
@@ -152,15 +177,17 @@ print("\nCreating comparison chart...")
 original_f1 = 0.5781  # from our original model_training_feature_engineering.py
 
 # Creating the chart for an easy overview
-labels = ["Original\n4-class LR", "Binary\nLogistic Regression", "Binary\nRandom Forest", "Binary\nKNN"]
+labels = ["Original\n4-class LR", "Binary\nLogistic Regression", "Binary\nRandom Forest", "Binary\nKNN", "Voting\nClassifier"]
 f1_scores = [
     original_f1,
     results_df[results_df["Model"] == "Logistic Regression"]["F1-score"].values[0],
     results_df[results_df["Model"] == "Random Forest"]["F1-score"].values[0],
-    results_df[results_df["Model"] == "KNN"]["F1-score"].values[0],]
-colors = ["#5b8dd9", "#2ecc71", "#2ecc71", "#2ecc71"]
+    results_df[results_df["Model"] == "KNN"]["F1-score"].values[0],
+    results_df[results_df["Model"] == "Voting Classifier"]["F1-score"].values[0],
+]
+colors = ["#5b8dd9", "#2ecc71", "#2ecc71", "#2ecc71", "#9b59b6"]
 
-plt.figure(figsize=(9, 5))
+plt.figure(figsize=(10, 5))
 bars = plt.bar(labels, f1_scores, color=colors, width=0.5)
 plt.axhline(y=original_f1, color="red", linestyle="--", linewidth=1.2, label=f"Original baseline ({original_f1})")
 plt.ylim(0, 1.0)
@@ -179,12 +206,20 @@ plt.show()
 
 print("Saved: improvement_comparison.png")
 
-# Save the trained model and label encoder so we can load them in burnout_predictor.py
-# This means the predictor doesn't have to retrain every time it runs
-joblib.dump(models["Logistic Regression"], "burnout_pipeline.pkl")
+# Finding the highest scoring model configuration
+best_model_name = max(results, key=lambda item: item["F1-score"])["Model"]
+print(f"\nWinner selected for export: {best_model_name}")
+
+# Extracting and saving the winning model pipeline
+best_model_pipeline = models[best_model_name]
+joblib.dump(best_model_pipeline, "burnout_pipeline.pkl")
 joblib.dump(label_encoder, "burnout_label_encoder.pkl")
+
+# Exporting the list of training feature names
+joblib.dump(X_train.columns.tolist(), "model_features.pkl")
 
 print("saved: burnout_label_encoder.pkl")
 print("Saved: burnout_pipeline.pkl")
+print("Saved: model_features.pkl")
 
 print("\nDone!")
