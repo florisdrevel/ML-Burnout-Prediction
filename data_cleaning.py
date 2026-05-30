@@ -1,14 +1,17 @@
 import pandas as pd
 
+# Loading the original dataset
 print("Loading original dataset...")
 
-df = pd.read_csv("/Users/ailinbergetun/documents/Exam_Project/mental_health_burnout_tech_2026.csv")
+df = pd.read_csv("mental_health_burnout_tech_2026.csv", sep=";")
 
+# Showing some general information to begin the analysis
 print("Original dataset shape:", df.shape)
 print(df.head())
 print(df.info())
 print("Missing values:")
 print(df.isnull().sum())
+
 
 print("Burnout level distribution:")
 print(df["burnout_level"].value_counts())
@@ -20,10 +23,11 @@ print("Normalising salary by country...")
 df["country_avg_salary"] = df.groupby("country")["salary_usd"].transform("mean")
 df["salary_relative"] = df["salary_usd"] / df["country_avg_salary"]
 
+# Removing the parent features
 df = df.drop(columns=["salary_usd", "country_avg_salary"])
 
 
-# Remove unwanted columns
+# Remove unwanted columns due to lack of signal or data leakage
 columns_to_remove = [
     "employee_id",
     "years_at_company",
@@ -38,11 +42,11 @@ columns_to_remove = [
 ]
 
 df = df.drop(columns=columns_to_remove)
-
+# print results
 print("Cleaned dataset shape:", df.shape)
 print("Remaining columns:")
 print(df.columns)
-
+# Save the cleaned set
 df.to_csv("cleaned_burnout_dataset.csv", index=False)
 
 print("Cleaned dataset saved as cleaned_burnout_dataset.csv")
