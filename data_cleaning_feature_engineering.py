@@ -12,7 +12,7 @@ print(df.info())
 print("Missing values:")
 print(df.isnull().sum())
 
-
+# Visualise the different class amounts
 print("Burnout level distribution:")
 print(df["burnout_level"].value_counts())
 
