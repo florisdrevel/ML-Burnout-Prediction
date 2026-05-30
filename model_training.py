@@ -15,8 +15,8 @@ from xgboost import XGBClassifier
 
 print("Loading cleaned dataset...")
 
-# load the cleaned and engineered data
-df = pd.read_csv("company_data.csv")
+# load the cleaned non-engineered datasett
+df = pd.read_csv("cleaned_burnout_dataset.csv")
 
 print("Dataset shape:", df.shape)
 
