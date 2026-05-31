@@ -35,11 +35,15 @@ model_features.pkl
 
 company_data.csv (your employee data - see below)
 
+after you rename it from:
+
+company_data_template.csv
+
 ---------------------------------------------------------------------------------------------
 HOW TO PREPARE YOUR EMPLOYEE DATA
 
-Use company_data.csv as your starting point.
-Fill in your employees and save the file with the exact same name.
+Use company_data_template.csv as your starting point.
+Fill in your employees and save the file with the exact same name, or change it to simply company_data.csv
 Make sure it is in the same folder as burnout_predictor.py.
 
 The file needs these columns:
@@ -69,7 +73,7 @@ job_satisfaction_score   - score 10-100
 social_support_score     - score 10-100
 deadline_pressure_score  - score 20-100
 autonomy_score           - score 15-100
-salary_relative          - dynamic base factor scale
+salary_relative          - dynamic base factor scale, dividing yearly income by country average.
 
 ---------------------------------------------------------------------------------------------
 HOW TO RUN IT
