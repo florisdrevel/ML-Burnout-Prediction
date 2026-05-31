@@ -225,14 +225,14 @@ plt.show()
 
 print("Saved: improvement_comparison.png")
 
-# Finding the highest scoring model configuration
+# Finding the highest scoring model
 best_model_name = max(results, key=lambda item: item["F1-score"])["Model"]
 print(f"\nWinner selected for export: {best_model_name}")
 
 # Extracting and saving the winning model pipeline
 best_model_pipeline = models[best_model_name]
 
-# Save pipeline components and required feature metadata
+# Save pipeline components and the needed feature metadata
 joblib.dump(best_model_pipeline, "burnout_pipeline.pkl")
 joblib.dump(label_encoder, "burnout_label_encoder.pkl")
 # Exporting the list of training feature names
