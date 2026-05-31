@@ -48,23 +48,23 @@ df = df.drop(columns=columns_to_remove)
 
 print("Creating new engineered features...")
 
-# Workload compared to sleep
+# Feature 1: Work-sleep ratio
 df["work_sleep_ratio"] = df["work_hours_per_week"] / df["sleep_hours_per_night"]
 
-# Meetings compared to work hours
+# Feature 2: Meeting-to-workload ratio
 df["meeting_workload_ratio"] = df["meetings_per_day"] / df["work_hours_per_week"]
 
-# Work-life risk indicator
+# Feature 3: Work-life risk indicator
 df["work_life_risk"] = df["work_hours_per_week"] / df["work_life_balance_score"]
 
-# Support average
+# Feature 4: Support average
 df["support_average"] = (
     df["manager_support_score"] +
     df["social_support_score"] +
     df["autonomy_score"]
 ) / 3
 
-# Pressure compared to support
+# Feature 5: Pressure-to-support ratio
 df["pressure_support_ratio"] = df["deadline_pressure_score"] / df["support_average"]
 
 print("New features created:")
